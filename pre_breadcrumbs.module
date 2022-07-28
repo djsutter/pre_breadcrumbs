@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * @file
+ * Implements the pre_breadcrumbs module.
+ */
+
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Link;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Breadcrumb\Breadcrumb;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\Request;
+
+/**
+ * Implements hook_system_breadcrumb_alter().
+ *
+ * Prepend user-defined breadcrumbs to the front of the breadcrumb trail.
+ */
+function pre_breadcrumbs_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context) {
+  if (\Drupal::service('router.admin_context')->isAdminRoute()) {
+    // Use core breadcrumb for admin pages.
+    return;
+  }
+
+  // Get current language.
+  $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $config = \Drupal::service('config.factory')->getEditable('pre_breadcrumbs.settings');
+
+  $links = [];
+
+  // Set configured header breadcrumbs.
+  if ($breadcrumb_settings = $config->get($langcode)) {
+    foreach ($breadcrumb_settings as $key => $link) {
+      $title = $langcode . '_crumb';
+      $url = $langcode . '_url';
+      if (!empty($link[$title]) && !empty($link[$url])) {
+        $uri = Url::fromUri($link[$url]);
+        if ($uri->isExternal()) {
+          $links[] = Link::fromTextAndUrl($link[$title], Url::fromUri($link[$url]));
+        }
+        else {
+          $links[] = Link::fromTextAndUrl($link[$title], Url::fromUri('route:<nolink>'));
+        }
+      }
+    }
+  }
+
+  // If route matches the front page, check configuration to append current page crumb.
+  if ($config->get('front_page_crumb')) {
+    if (\Drupal::service('path.matcher')->isFrontPage()) {
+      $route = $route_match->getRouteObject();
+      if (isset($route)) {
+        $request = Request::create($route->getPath());
+        $request->headers->set('Accept', 'text/html');
+        $request->attributes->add($route_match->getParameters()->all());
+        $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+        if (isset($title)) {
+          $links[] = Link::fromTextAndUrl($title, Url::fromRouteMatch($route_match));
+        }
+      }
+    }
+  }
+
+  // Get breadcrumb links for current route match.
+  $breadcrumb_links = $breadcrumb->getLinks();
+
+  // @todo Replace 'Home/Accueil' breadcrumb with front page reference.
+  // Accounts for case when the current node is not included in an active menu.
+  if ($node = $route_match->getParameter('node')) {
+    if (is_string($node)) {
+      // Occurs when visiting previous revisions of a node with Drupal 8.
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($node);
+    }
+    $menu_defaults = menu_ui_get_menu_link_defaults($node);
+    if (!$menu_defaults['id']) {
+      $frontpage = \Drupal::service('config.factory')->getEditable('system.site')->get('page.front');
+      $frontpage_url = \Drupal::service('path.validator')->getUrlIfValid($frontpage);
+      if ($frontpage_url instanceof Url) {
+        foreach ($breadcrumb_links as $key => $link) {
+          if ($link->getUrl() == Url::fromRoute('<front>')) {
+            // Reset home page crumb.
+            // Temporary fix - just remove.
+            unset($breadcrumb_links[$key]);
+          }
+        }
+      }
+      else {
+        \Drupal::logger('pre_breadcrumbs')->error('Invalid front page URL.');
+      }
+    }
+  }
+
+  // Merge prepended crumbs with those generated from route context.
+  $links = array_merge($links, $breadcrumb_links);
+
+  // Create a new object but carry over the cacheable metadata.
+  $cacheability = CacheableMetadata::createFromObject($breadcrumb);
+  $breadcrumb = new Breadcrumb();
+  $breadcrumb->setLinks($links);
+  $breadcrumb->addCacheableDependency($cacheability);
+}

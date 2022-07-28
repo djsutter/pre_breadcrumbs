@@ -1,0 +1,5 @@
+pre_breadcrumbs.settings_form:
+  title: 'Prepend Breadcrumbs'
+  base_route_name: pre_breadcrumbs.settings_form
+  names:
+    - pre_breadcrumbs.settings

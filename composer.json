@@ -1,0 +1,6 @@
+{
+  "name": "dsutter/pre_breadcrumbs",
+  "description": "Prepend Breadcrumbs",
+  "type": "drupal-custom-module",
+  "license": "GPL-2.0+"
+}

@@ -1,0 +1,6 @@
+pre_breadcrumbs.settings_form:
+  title: 'Prepend Breadcrumbs'
+  description: 'Prepend externally linked breadcrumbs to the current page breadcrumb trail.'
+  parent: system.admin_config_ui
+  route_name: pre_breadcrumbs.settings_form
+  weight: 100

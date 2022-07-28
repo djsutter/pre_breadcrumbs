@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Prepend Breadcrumbs module.
+ */
+
+use Drupal\Core\Config\FileStorage;
+
+/**
+ * Update Menu Breadcrumb module settings.
+ */
+function pre_breadcrumbs_update_8001() {
+  $module_handler = \Drupal::moduleHandler();
+  $config_factory = \Drupal::service('config.factory');
+  $config_storage = \Drupal::service('config.storage');
+  $config_path = $module_handler->getModule('pre_breadcrumbs')->getPath() . '/config/install';
+  $source = new FileStorage($config_path);
+
+  $config_name = 'pre_breadcrumb.settings';
+
+  // Delete the existing configuration.
+  if ($config = $config_factory->getEditable($config_name)) {
+    if ($config_translation = \Drupal::languageManager()->getLanguageConfigOverride('fr', $config_name)) {
+      $config_translation->delete();
+    }
+    $config->delete();
+  }
+
+  // Install the configuration YAML file.
+  $config_storage->write($config_name, $source->read($config_name));
+}
