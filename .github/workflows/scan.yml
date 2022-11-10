@@ -12,6 +12,7 @@ jobs:
 
       - name: Install that thing
         run: |
+          composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer require squizlabs/php_codesniffer
           composer require drupal/coder
 
