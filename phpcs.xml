@@ -5,6 +5,7 @@
 <ruleset name="Drupal">
     <description>The coding standard for our project.</description>
     <rule ref="Drupal"/>
+    <rule ref="DrupalPractice"/>
 
     <!-- Check all files in the current directory and below. -->
     <file>src</file>
