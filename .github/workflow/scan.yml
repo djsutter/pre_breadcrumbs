@@ -1,15 +1,13 @@
 name: Scan
 
 on:
-    push:
-        branches:
-            - 'main'
+  push:
 
 jobs:
-    scanit:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
+  scanit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-            - name: Run phpcs
-              run: phpcs .
+      - name: Run phpcs
+        run: phpcs .
