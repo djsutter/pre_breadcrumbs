@@ -2,6 +2,7 @@ name: Scan
 
 on:
   push:
+    branches: ["main"]
 
 jobs:
   scanit:
