@@ -1,0 +1,15 @@
+name: Scan
+
+on:
+    push:
+        branches:
+            - 'main'
+
+jobs:
+    scanit:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Run phpcs
+              run: phpcs .
