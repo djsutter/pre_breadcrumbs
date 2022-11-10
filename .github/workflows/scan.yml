@@ -17,4 +17,4 @@ jobs:
           composer require drupal/coder
 
       - name: Run phpcs
-        run: vendor/bin/phpcs .
+        run: vendor/bin/phpcs
