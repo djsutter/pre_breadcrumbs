@@ -7,7 +7,7 @@
     <rule ref="Drupal"/>
 
     <!-- Check all files in the current directory and below. -->
-    <file>.</file>
+    <file>src</file>
     <arg name="extensions" value="php,module,inc,install,test,profile,theme,css,info,yml"/>
     <!-- Change this value to 7 if you want to check Drupal 7 code. -->
     <config name="drupal_core_version" value="8"/>

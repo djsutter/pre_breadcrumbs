@@ -11,7 +11,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install that thing
-        run: composer require squizlabs/php_codesniffer
+        run: |
+          composer require squizlabs/php_codesniffer
+          composer require drupal/coder
 
       - name: Run phpcs
         run: vendor/bin/phpcs .
